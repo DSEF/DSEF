@@ -20,7 +20,6 @@ for trial_full in $(ls -dp ${output_dir}/* | grep '/$'); do
     ./dynamic_postprocess_combine_clients.bash $exp_dir $trial_full $run_length $trim
 done
 
-
 for system in ${ds}; do
     all_file=$output_dir/$system".all"
     graph_file=$output_dir/$system".graph"
@@ -44,10 +43,13 @@ for system in ${ds}; do
 	all_tputs_cols=""
 	all_tputs_bytes=""
 	for trial_full in $(ls -dp ${output_dir}/* | grep '/$'); do
-	    tput_ops=$(cat   ${trial_full}/${system}/$data_point.ops   | awk '{ print $1 }')
-	    tput_keys=$(cat  ${trial_full}/${system}/$data_point.keys  | awk '{ print $1 }')
-	    tput_cols=$(cat  ${trial_full}/${system}/$data_point.cols  | awk '{ print $1 }')
-	    tput_bytes=$(cat ${trial_full}/${system}/$data_point.bytes | awk '{ print $1 }')
+	    if [[ ${trial_full} == *"data"*  ]]; then
+		continue # Ignores data file
+	    fi
+	    tput_ops=$(cat   ${trial_full}${system}/$data_point.ops   | awk '{ print $1 }')
+	    tput_keys=$(cat  ${trial_full}${system}/$data_point.keys  | awk '{ print $1 }')
+	    tput_cols=$(cat  ${trial_full}${system}/$data_point.cols  | awk '{ print $1 }')
+	    tput_bytes=$(cat ${trial_full}${system}/$data_point.bytes | awk '{ print $1 }')
             all_tputs_ops=$(echo -e   "${all_tputs_ops}\t${tput_ops}")
             all_tputs_keys=$(echo -e  "${all_tputs_keys}\t${tput_keys}")
             all_tputs_cols=$(echo -e  "${all_tputs_cols}\t${tput_cols}")

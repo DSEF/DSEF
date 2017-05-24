@@ -3,6 +3,8 @@
 # Launches multiple cassandra instances on KODIAK
 #
 
+#exec /bin/bash
+
 set -u
 
 source dynamic_common
@@ -31,14 +33,15 @@ fi
 eval "${src_dir}/kodiak_cassandra_killer.bash ${dcl_config_full}"
 for ip in ${ips[@]}; do
 (ssh -t -t -o StrictHostKeyChecking=no $ip "\
-rm ${cops_dir}/*hprof 2> /dev/null;\
-rm ~/cassandra-vanilla/*hprof 2> /dev/null;\
-rm ${var_dir}/cassandra*log 2> /dev/null;\
-rm ${var_dir}/cassandra*log* 2> /dev/null;\
+rm -rf ${cops_dir}/*hprof 2> /dev/null;\
+rm -rf ~/cassandra-vanilla/*hprof 2> /dev/null;\
+rm -rf ${var_dir}/cassandra*log 2> /dev/null;\
+rm -rf ${var_dir}/cassandra*log* 2> /dev/null;\
 rm -rf ${var_dir}/data/* 2> /dev/null;\
 rm -rf ${var_dir}/commitlog/* 2> /dev/null;\
 rm -rf ${var_dir}/saved_caches/* 2> /dev/null;\
 rm -rf ${var_dir}/stdout/* 2> /dev/null;\
+rm -rf ${var_dir}/* 2> /dev/null;\
 sudo mkdir ${var_dir} 2> /dev/null;\
 sudo chown ${username} ${var_dir} 2> /dev/null;\
 mkdir ${var_dir}/data 2> /dev/null;\
@@ -47,7 +50,7 @@ mkdir ${var_dir}/data/system/NodeIdInfo 2> /dev/null;\
 mkdir ${var_dir}/commitlog 2> /dev/null;\
 mkdir ${var_dir}/saved_caches 2> /dev/null;\
 mkdir ${var_dir}/stdout 2> /dev/null;\
-" 2>&1 | awk '{ print "'$ip': "$0 }' ) &
+" |& awk '{ print "'$ip': "$0 }' ) &
 done
 
 
@@ -102,9 +105,9 @@ for dc in $(seq 0 $((num_dcs - 1))); do
 
 	#copy over conf files
 	(
-        scp -o StrictHostKeyChecking=no ${topo_file} ${local_ip}:${cops_dir}/conf/ 2>&1 | awk '{ print "'$local_ip': "$0 }'
-        scp -o StrictHostKeyChecking=no conf/vicci/${conf_file} ${local_ip}:${cops_dir}/conf/ 2>&1 | awk '{ print "'$local_ip': "$0 }'
-        scp -o StrictHostKeyChecking=no conf/vicci/${log4j_file} ${local_ip}:${cops_dir}/conf/ 2>&1 | awk '{ print "'$local_ip': "$0 }'
+        scp -o StrictHostKeyChecking=no ${topo_file} ${local_ip}:${cops_dir}/conf/ |& awk '{ print "'$local_ip': "$0 }'
+        scp -o StrictHostKeyChecking=no conf/vicci/${conf_file} ${local_ip}:${cops_dir}/conf/ |& awk '{ print "'$local_ip': "$0 }'
+        scp -o StrictHostKeyChecking=no conf/vicci/${log4j_file} ${local_ip}:${cops_dir}/conf/ |& awk '{ print "'$local_ip': "$0 }'
 
 	while [ 1 ]; do
             ssh_output=$(ssh -o StrictHostKeyChecking=no $local_ip "\
@@ -132,7 +135,7 @@ if [ "$wait" != "" ]; then
     while [ "${normal_nodes}" -ne "${total_nodes}" ]; do
         sleep 5
         normal_nodes=$(ssh -o StrictHostKeyChecking=no ${ips[0]} \
-	    "${cops_dir}/bin/nodetool -h localhost ring 2>&1 | grep Normal | wc -l")
+	    "${cops_dir}/bin/nodetool -h localhost ring |& grep Normal | wc -l")
         echo "Number of normal nodes:  "$normal_nodes
 	wait_time=$((wait_time+5))
 	if [[ $wait_time -ge 120 ]]; then

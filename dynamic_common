@@ -1,5 +1,5 @@
 source setup.conf
-dynamic_dir="dynamic_"${exp}
+dynamic_dir="dynamic_${exp}"
 src_dir="/users/${username}/${ds}"
 exp_dir="${src_dir}/experiments"
 stress_dir="${src_dir}/tools/stress"
@@ -19,8 +19,8 @@ done
 
 first_dc_servers_csv=$(echo ${servers_by_dc_auto[0]} | sed 's/ /,/g')
 
-dcl_config=${nservers}_in_kodiak
-client_config=${nservers}_clients_in_kodiak
+dcl_config=${nservers}_in_emulab
+client_config=${nservers}_clients_in_emulab
 
 dcl_config_full="${src_dir}/vicci_dcl_config/${dcl_config}"
 
@@ -80,7 +80,6 @@ setup() {
 }
 
 launch() {
-    sleep 1
     while [ 1 ]; do
 	./kodiak_dc_launcher.bash 
 	return_value=$?
@@ -101,33 +100,35 @@ set_server_keyspace() {
 }
 
 set_client_keyspace() {
+    set +x
     while [ 1 ]; do
 	(sleep $KILLALL_SSH_TIME; killall ssh) & killall_ssh_pid=$!
 
-	echo KILLALLSSHTIME $KILLALL_SSH_TIME
-
 	pop_pids=""
-	for dc in 0; do
+	for (( dc = 0; dc < ${ndcs}; dc++ )) do
 	    local_servers_csv=$(echo ${servers_by_dc_auto[$dc]} | sed 's/ /,/g')
 
 	    for index in $(seq 0 $((num_nodes_per_dc - 1))); do
 		client=$(echo ${clients_by_dc_auto[$dc]} | sed 's/ /\n/g' | head -n $((index+1)) | tail -n 1)
-		# Wirte to All so the cluster is populated everywhere
+		# Write to All so the cluster is populated everywhere
 		ssh $client -t -t -o StrictHostKeyChecking=no "\
 		     sudo mkdir -p /local/${dynamic_dir}/${exp_uid}; \
 		     sudo chown ${username} /local/${dynamic_dir}; \
 		     sudo chown ${username} /local/${dynamic_dir}/${exp_uid};"
-		ssh $client -o StrictHostKeyChecking=no "$stress_killer; sleep 1; \ 
+		ssh $client -o StrictHostKeyChecking=no "$stress_killer; \
+		     echo 'NODES: $first_dc_servers_csv' \ 
 		     cd ${src_dir}/tools/stress; bin/stress --nodes=$first_dc_servers_csv \
 		     --columns=$cols_per_key_read --column-size=$value_size --operation=${insert_cmd} \
 		     --consistency-level=LOCAL_QUORUM --replication-strategy=NetworkTopologyStrategy \
 		     --strategy-properties=$strategy_properties --num-different-keys=$keys_per_client_first\
 		     --num-keys=$keys_per_client_first --stress-index=$index \
 		     --stress-count=$num_nodes_per_dc \
+		     --file=${src_dir}/stress.out \
 		      > >(tee /local/${dynamic_dir}/${exp_uid}/populate${t}.out) \
 		     2> >(tee /local/${dynamic_dir}/${exp_uid}/populate${t}.err)" \
 		     2>&1 | awk '{ print "'$client': "$0 }' & pop_pid=$!
 		pop_pids="$pop_pids $pop_pid"
+		echo "pop_pids: ${pop_pids}"
 	     done
 	done
 
@@ -136,9 +137,7 @@ set_client_keyspace() {
 	    wait $pop_pid
 	done
 
-	sleep 1
-
-	kill $killall_ssh_pid
+	kill -9 $killall_ssh_pid
 	killed_killall=$?
 	if [ $killed_killall == "0" ]; then
 	     echo KILLEDKILLALL
@@ -156,12 +155,12 @@ set_client_keyspace() {
 }
 
 run_experiment() {
-    for dc in $(seq 0 $eindex); do
+   for (( dc = 0; dc < ndcs; dc++ )) do
 	local_servers_csv=$(echo ${servers_by_dc_auto[$dc]} | sed 's/ /,/g')
 
 	for index in $(seq 0 $((num_nodes_per_dc - 1))); do
 	     client=$(echo ${clients_by_dc_auto[$dc]} | sed 's/ /\n/g' | head -n $((index+1)) | tail -n 1)
-	
+
 	     ssh $client -t -t -o StrictHostKeyChecking=no "\
 		sudo mkdir -p $cli_output_dir; sudo chown ${username} $cli_output_dir;"
 	     ssh $client -o StrictHostKeyChecking=no "cd ${src_dir}/tools/stress; \
@@ -186,14 +185,13 @@ run_experiment() {
 kill_all_ds() {
     set -m # need to monitor mode to fg processes
     for ip in ${servers_by_dc_auto[@]}; do
-	echo $ip
 	ssh -t -t -o StrictHostKeyChecking=no $ip "${ds}/kill_all_cassandra.bash"
     done
 }
 
 gather_results() {
-    for dc in $(seq 0 $eindex); do
-	for index in $(seq 0 $((num_nodes_per_dc - 1))); do
+    for (( dc = 0; dc < ndcs; dc++ )) do
+	for index in $(seq 0 $((num_nodes_per_dc-1))); do
 	    client_dir=${output_dir}/client${index}
 	    client=$(echo ${clients_by_dc_auto[$dc]} | sed 's/ /\n/g' | head -n $((index+1)) | tail -n 1)
 	    rsync -az $client:/local/${dynamic_dir}/${exp_uid}/* $client_dir
