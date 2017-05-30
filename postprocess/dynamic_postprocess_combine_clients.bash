@@ -18,16 +18,16 @@ for system_full in $(ls -dp ${output_dir}/* | grep '/$'); do
 
     # postprocess all client dirs
     for client_full in $(ls -dp $system_full/* | grep '/$'); do
-	client=$(echo $client_full | awk -F"${system_full}/" '{ print $2 }')
-	echo -en "  Client Postprocess: $client    \r"
+	      client=$(echo $client_full | awk -F"${system_full}/" '{ print $2 }')
+	      echo -en "  Client Postprocess: $client    \r"
 
-	./dynamic_postprocess_client.bash $client_full $run_length $trim	
+	      ./dynamic_postprocess_client.bash $client_full $run_length $trim
     done
     echo "  Client Postprocess: complete     "
 
     for data_point in $(ls $system_full/client0/*+tput | awk -F"client0/" '{ print $2 }' ); do
-	control_var=$(echo $data_point | awk -F"+" '{ print $2 }')
-	echo -en "  Combining Clients: $data_point      \r"
+	      control_var=$(echo $data_point | awk -F"+" '{ print $2 }')
+	      echo -en "  Combining Clients: $data_point      \r"
 
 
 	all_tputs_ops=""

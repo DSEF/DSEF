@@ -25,7 +25,7 @@ echo exp=${exp} >> setup.conf
 echo indep_values=\"${indep_values}\" >> setup.conf
 echo insert_cmd=${insert_cmd} >> setup.conf
 echo KILLALL_SSH_TIME=${KILLALL_SSH_TIME} >> setup.conf
-echo MAX_ATTEMPTS=${MAX_ATTEMPTS} >> setup.conf   
+echo MAX_ATTEMPTS=${MAX_ATTEMPTS} >> setup.conf
 rsync --progress setup.conf ${username}@${host_ip}:
 rsync --progress dynamic_common ${username}@${host_ip}:
 rsync --progress kodiak_dc_launcher.bash  ${username}@${host_ip}:
