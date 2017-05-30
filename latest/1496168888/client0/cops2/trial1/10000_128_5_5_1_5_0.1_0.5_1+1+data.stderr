@@ -1,7 +1,0 @@
-java.io.IOException: Operation [1] retried 10 times - error on calling multiget_slice for keys [0000005625] (Wrong number of columns: 0 instead of 5: 0 for 0000005625 )
-
-	at org.apache.cassandra.stress.util.Operation.error(Unknown Source)
-	at org.apache.cassandra.stress.operations.DynamicWorkload.read(Unknown Source)
-	at org.apache.cassandra.stress.operations.DynamicWorkload.run(Unknown Source)
-	at org.apache.cassandra.stress.StressAction$Consumer.run(Unknown Source)
-Latencies (usecs): 50=301782, 90=301782, 95=301782, 99=301782, 99.9=301782

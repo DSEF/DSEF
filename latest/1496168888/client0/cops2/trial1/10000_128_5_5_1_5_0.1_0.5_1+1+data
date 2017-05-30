@@ -1,6 +1,0 @@
-total,interval_op_rate,interval_key_rate,avg_latency,elapsed_time
-0,0,0,0,0,NaN,1
-Operation [1] retried 10 times - error on calling multiget_slice for keys [0000005625] (Wrong number of columns: 0 instead of 5: 0 for 0000005625 )
-
-1,1,5,25,3200,0.301,1
-END
