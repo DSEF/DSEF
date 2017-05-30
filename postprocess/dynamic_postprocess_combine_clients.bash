@@ -17,6 +17,7 @@ for system_full in $(ls -dp ${output_dir}/* | grep '/$'); do
     echo " $system"
 
     # postprocess all client dirs
+    echo "dbg:" $(ls -dp $system_full/* | grep '/$')
     for client_full in $(ls -dp $system_full/* | grep '/$'); do
 	      client=$(echo $client_full | awk -F"${system_full}/" '{ print $2 }')
 	      echo -en "  Client Postprocess: $client    \r"
