@@ -1,0 +1,2 @@
+Unable to create stress keyspace: Keyspace names must be case-insensitively unique ("Keyspace1" conflicts with "Keyspace1")
+No Latencies percentiles to print

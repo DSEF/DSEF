@@ -1,0 +1,5 @@
+Exception in thread "main" java.lang.RuntimeException: java.net.ConnectException: Connection refused
+	at org.apache.cassandra.stress.Session.getClient(Unknown Source)
+	at org.apache.cassandra.stress.Session.createKeySpaces(Unknown Source)
+	at org.apache.cassandra.stress.StressAction.run(Unknown Source)
+	at org.apache.cassandra.stress.Stress.main(Unknown Source)
