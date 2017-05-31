@@ -16,7 +16,6 @@ unset run_length
 
 cd $output_dir
 
-
 #extract the average throughput from the trimmed part of each run to +tput files
 for f in $(ls *+data); do
     base_file_name=$(echo $f | sed 's/+data//')

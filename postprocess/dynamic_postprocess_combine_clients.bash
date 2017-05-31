@@ -8,26 +8,25 @@ if [ $# -ne 4 ]; then
 fi
 
 exp_dir=$1
-output_dir=$2
+output_dir=$(echo $2 | sed 's/\/$//g')
 run_length=$3
 trim=$4
 
 for system_full in $(ls -dp ${output_dir}/* | grep '/$'); do
-    system=$(echo $system_full | awk -F"${output_dir}/" '{ print $2 }' | sed 's/\///g')
-    echo " $system"
+    system=$(echo ${system_full} | awk -F"${output_dir}" '{ print $2 }' | sed 's/\///g')
 
     # postprocess all client dirs
-    for client_full in $(ls -dp $system_full/* | grep '/$'); do
-	client=$(echo $client_full | awk -F"${system_full}/" '{ print $2 }')
-	echo -en "  Client Postprocess: $client    \r"
+    for client_full in $(ls -dp ${system_full}/* | grep '/$'); do
+    	  client=$(echo ${client_full} | awk -F"${system_full}/" '{ print $2 }')
+    	  echo -en "  Client Postprocess: $client    \r"
 
-	./dynamic_postprocess_client.bash $client_full $run_length $trim	
+        ./dynamic_postprocess_client.bash $client_full $run_length $trim
     done
     echo "  Client Postprocess: complete     "
 
     for data_point in $(ls $system_full/client0/*+tput | awk -F"client0/" '{ print $2 }' ); do
-	control_var=$(echo $data_point | awk -F"+" '{ print $2 }')
-	echo -en "  Combining Clients: $data_point      \r"
+	      control_var=$(echo $data_point | awk -F"+" '{ print $2 }')
+	      echo -en "  Combining Clients: $data_point      \r"
 
 
 	all_tputs_ops=""

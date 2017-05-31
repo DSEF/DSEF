@@ -7,7 +7,7 @@
 
 set -u
 
-source dynamic_common
+source dynamic_common.bash
 
 wait=wait
 cops_dir=${src_dir}
@@ -25,7 +25,7 @@ nodes_per_dc=$((${#ips[@]} / num_dcs))
 total_nodes=$((num_dcs * nodes_per_dc))
 
 #sanity check
-if [ $(($nodes_per_dc * $num_dcs)) -ne ${#ips[@]} ]; then 
+if [ $(($nodes_per_dc * $num_dcs)) -ne ${#ips[@]} ]; then
     echo ${nodes_per_dc}" * "${num_dcs}" != "${#ips[@]};
     exit
 fi
