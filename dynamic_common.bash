@@ -119,7 +119,6 @@ set_client_keyspace() {
 		     sudo chown ${username} /local/${dynamic_dir}; \
 		     sudo chown ${username} /local/${dynamic_dir}/${exp_uid};"
 		            ssh $client -o StrictHostKeyChecking=no "$stress_killer; \
-		     echo 'NODES: $first_dc_servers_csv' \
 		     cd ${src_dir}/tools/stress; bin/stress --nodes=$first_dc_servers_csv \
 		     --columns=$cols_per_key_read --column-size=$value_size --operation=${insert_cmd} \
 		     --consistency-level=LOCAL_QUORUM --replication-strategy=NetworkTopologyStrategy \
