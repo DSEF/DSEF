@@ -29,8 +29,8 @@ done
 
 echo "done shuffling"
 
-cd $output_dir
-tar -cjf clis.tar.bz2 client*
-rm -r .trash
-mkdir .trash
-mv client* .trash
+# cd ${output_dir}
+# tar -cjf clis.tar.bz2 client*
+# mkdir runs/${timestamp}
+# mkdir .trash
+# mv client* .trash

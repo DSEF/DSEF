@@ -1,4 +1,7 @@
 source setup.conf
+
+set -u
+
 dynamic_dir="dynamic_${exp}"
 src_dir="/users/${username}/${ds}"
 exp_dir="${src_dir}/experiments"
@@ -44,8 +47,8 @@ done
 
 init() {
     mkdir -p ${output_dir}
-    rm $output_dir_base/latest
-    ln -s $output_dir $output_dir_base/latest
+    rm -rf ${output_dir_base}/latest
+    ln -s ${output_dir} ${output_dir_base}/latest
 }
 
 setup() {
